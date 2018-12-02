@@ -1,0 +1,18 @@
+AM.01 Number of recipients of last resort financial assistance by sex, age group and health region of insured person
+AM.02 Number of persons 65 years of age and over by sex, age group and health region of the insured person
+AM.03 Number of members by sex, age group and health region of the insured person
+AM.04 Evolution of main cost factors
+AM.05 Change in major cost factors by category of insured persons
+AM.06 Key variables by category of insured persons
+AM.07 Number of participants and prescriptions, number of prescriptions per participant, gross prescription cost per participant, RAMQ cost of prescriptions and per participant by class of drug and class of insured person
+AM.08 Number of participants and prescriptions, number of prescriptions per participant, gross prescription cost per participant, RAMQ cost of prescriptions and per participant by health region and class of insured persons
+AM.09 Number of participants and prescriptions, number of prescriptions per participant, gross cost of prescriptions and per participant, RAMQ cost of prescriptions and per participant by sex, age group and class of insured persons
+AM.10 Number of prescriptions, their gross cost and RAMQ cost by most common classes and drug subclasses and category of insured persons, in descending order of the number of prescriptions
+AM.11 Percentage Distribution of Orders by Type and Category of Insured Persons
+AM.12 Percentage Distribution of Orders by Class of Insured Person and Duration of Treatment
+AM.13 Main variables of exceptional measures by category of insured persons
+AM.14 Number and cost of prescriptions or services and number of beneficiaries for certain free programs
+AM.15 Number of main services by category of insured persons
+AM.16 Cost of major services by category of insured persons
+AM.17 Number of proprietary pharmacies and pharmacists by health region where the pharmacy is located
+AM.18 Number of pharmacies and average amount paid according to the class of payments and the health region where the pharmacy is located
