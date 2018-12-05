@@ -13,11 +13,9 @@
 
 # load libs
 library(ggplot2)
+library(tidyr)
 library(dplyr)
-library(readr)
-library(ggrepel)
-library(lubridate)
-library(scales)
+library(reshape2)
 library(readxl)
 library(RColorBrewer)
 
@@ -56,6 +54,7 @@ tab1 <- data.frame(genre = c("spec", "omni"),
                   nombre = c(11283, 10126))
 
 # modes de rémunération de 2013-2014 à 2017-2018 (en pourcentage)
+# 62 million requests for payment in 2017-2018
 tab2 <- data.frame(annee = c("2013", "2014", "2015", "2016", "2017"),
                    acte = c(61.4, 61.5, 63.2, 66.4, 70.1),
                    autres = c(38.6, 38.5, 36.8, 33.6, 29.9))
@@ -63,7 +62,7 @@ tab2 <- data.frame(annee = c("2013", "2014", "2015", "2016", "2017"),
 
 # médecins présentant un écart de facturation (outils de dépistage) et taux de vérification
 # seuil minimal de 50% et un cible de 75%
-tab3 <- data.frame(annee = c("2016", "2016", "2017", "2017"),
+tab3 <- data.frame(annee = c("2016", "2016", "2017 †", "2017 †"),
                    genre = c("omni", "spec", "omni", "spec"),
                    nombre = c(163, 396, 120, 360),
                    verifies = c(25, 34, 12, 8))
@@ -72,7 +71,7 @@ tab3 <- data.frame(annee = c("2016", "2016", "2017", "2017"),
 tab4 <- data.frame(annee = c("2015", "2016", "2017"),
                    en_debut = c(2,11,69),
                    pendant = c(16, 103, 135),
-                   debut_d-analyse = c(7,45,114),
+                   debut_danalyse = c(7,45,114),
                    finalises = c(56, 31, 23))
 
 # Il s’agit du pourcentage des dossiers ajoutés à l’inventaire pendant l’exercice qui étaient finalisés
@@ -95,6 +94,103 @@ annx2 <- data.frame(annee = c("2013", "2014", "2015", "2016", "2017"),
 
 # Nombre de médecins ayant facturé 1 000 000 $ et plus à la RAMQ 
 mil.plus <- read_xlsx("Medecin_montant_million_an.xlsx", col_names=T)
+
+# rise of FFS over years
+labs = c("Fee-for-service and incentives", "Mixed scheme", "Fees package", "Remuneration package",
+         "Salary and fixed fees", "Special measures", "Other programs and benefits")
+ggplot(data=annx2 %>% gather(mode, value, -annee)    , 
+  aes(x=annee, y=value, group=as.factor(mode), colour=as.factor(mode))) +
+  geom_line(stat="identity") +
+  labs(x="Year", y="Number of Physicians",
+       title="Physician remuneration schemes in Québec",
+       subtitle="Yearly accruement of fee-for-service payments and measured incentives, 2013-2014 to 2017-2018",
+       caption="Author: Kody Crowell (@hummushero); Source: VGQ, RAMQ (2018)") +
+  scale_color_manual(values=rev(brewer.pal(9, "Reds")), name="", labels=labs,
+                    guide = guide_legend(
+                      direction = "vertical", keyheight = unit(2, units = "mm"),
+                      keywidth = unit(50/length(labels), units = "mm"),
+                      title.position = 'right', title.hjust = 0.5, label.hjust = 0.5,
+                      reverse = T, label.position = "bottom")) +
+  theme_mir() +
+  theme(strip.text.x = element_text(size=rel(1)),
+        strip.text.y = element_text(size=rel(1)),
+        strip.background = element_blank(),
+        legend.background = element_blank(),
+        legend.justification = c(0, 0),
+        plot.title = element_text(size=18, margin=margin(b=10)),
+        plot.subtitle = element_text(size=12, color=mir.gray, face="italic",
+                                     margin=margin(b=25)),
+        plot.caption = element_text(size=10, margin=margin(t=10), 
+                                    color="grey60", hjust=0)) # 1400x800
+
+# verified facturation
+labs = c("General practitioner", "Specialist")
+ggplot(data=melt(tab3) %>% mutate(value2=c(138, 362, 108, 352, 25, 34, 12, 8)), 
+       aes(annee, value, group=genre, fill=genre, alpha=variable, label=value2)) +
+  geom_bar(stat="identity", position="dodge", colour="black") +
+  labs(x="Year", y="Number of cases",
+       title="Number of physicians in Québec with a billing discrepancy",
+       subtitle="Total number of cases and number of cases verified, 2016-2017",
+       caption="Author: Kody Crowell (@hummushero); Source: VGQ, RAMQ (2018)
+       † 2017 verification incomplete at the time the audit was performed") +
+  scale_fill_manual(values=rev(red.ramp[c(7,5)]), name="", labels=labs,
+                      guide = guide_legend(
+                        direction = "vertical", keyheight = unit(2, units = "mm"),
+                        keywidth = unit(30/length(labels), units = "mm"),
+                        title.position = 'right', title.hjust = 0.5, label.hjust = 0.5,
+                        reverse = T, label.position = "bottom")) +
+  scale_alpha_manual(values=c(0.5, 1), name="", labels=c("Non-verified", "Verified")) +
+  geom_text(family="Georgia", vjust=-0.5, position=position_dodge(width = 1),
+            show.legend = FALSE) +
+  theme_mir() +
+  theme(strip.text.x = element_text(size=rel(1)),
+        strip.text.y = element_text(size=rel(1)),
+        strip.background = element_blank(),
+        legend.background = element_blank(),
+        legend.justification = c(0, 0),
+        plot.title = element_text(size=18, margin=margin(b=10)),
+        plot.subtitle = element_text(size=12, color=mir.gray, face="italic",
+                                     margin=margin(b=25)),
+        plot.caption = element_text(size=10, margin=margin(t=10), 
+                                    color="grey60", hjust=0)) # 1000x800
+
+# practices who charged a million or more to RAMQ -- total 166, 202, 195 (2016)
+# opthal and radiologie upwards of 2 million
+mil.plus.5 <- mil.plus %>% filter(`2016` > 9 | `2014` > 8) %>% arrange(`2016`)
+mil.plus.5$Spécialité <- factor(mil.plus.5$Spécialité, 
+                                levels=c("Obstétrique et gynécologie", "Omnipraticien", 
+                                         "Cardiologie", "Radiologie diagnostique", "Ophtalmologie"))
+
+labs <- c("Obstetrics and gynecology", "General practice", "Cardiology", "Diagnotic radiology", "Opthalmology")
+ggplot(data=mil.plus.5 %>% melt(), 
+       aes(variable, value, group=Spécialité, fill=Spécialité, label=value)) +
+  geom_bar(stat="identity", position="dodge", colour="black") +
+  labs(x="Year", y="Number of practitioners",
+       title="Profit or practice?",
+       subtitle="Total number of physicians (by specialty) who billed RAMQ more than $1,000,000, 2014-2016",
+       caption="Author: Kody Crowell (@hummushero); Source: RAMQ (2018)") +
+  scale_fill_manual(values=rev(red.ramp), name="", labels=labs,
+                    guide = guide_legend(
+                      direction = "vertical", keyheight = unit(3, units = "mm"),
+                      keywidth = unit(20/length(labels), units = "mm"),
+                      title.position = 'right', title.hjust = 0.5, label.hjust = 0.5,
+                      reverse = T, label.position = "bottom")) +
+  scale_alpha_manual(values=c(0.5, 1), name="", labels=c("Non-verified", "Verified")) +
+  geom_text(family="Georgia", vjust=-0.5, position=position_dodge(width = 1)) +
+  theme_mir() +
+  theme(strip.text.x = element_text(size=rel(1)),
+        strip.text.y = element_text(size=rel(1)),
+        strip.background = element_blank(),
+        legend.background = element_blank(),
+        legend.justification = c(0, 0),
+        plot.title = element_text(size=18, margin=margin(b=10)),
+        plot.subtitle = element_text(size=12, color=mir.gray, face="italic",
+                                     margin=margin(b=25)),
+        plot.caption = element_text(size=10, margin=margin(t=10), 
+                                    color="grey60", hjust=0)) # 1200x800
+
+################################################################################
+# notes
 
 # La RAMQ a revu le processus d’analyse de la facturation afin qu’il soit plus
 # efficace. Toutefois, en raison du court délai depuis l’implantation des nouvelles
