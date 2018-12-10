@@ -34,9 +34,9 @@ theme_mir <- function(...) {
       axis.line = element_blank(),
       axis.ticks = element_blank(),
       axis.text.x = element_text(angle=45, hjust=1),
-      axis.text.y = element_text(size=rel(1)),
-      axis.title.y = element_text(size=rel(1), vjust=2),
-      axis.title.x = element_text(size=rel(1), vjust=-0.5),
+      axis.text.y = element_text(size=rel(1.2)),
+      axis.title.y = element_text(size=rel(1.2), vjust=2),
+      axis.title.x = element_text(size=rel(1.2), vjust=-0.5),
       panel.grid.major = element_line(color = mir.lgray, size = 0.2),
       panel.grid.minor = element_line(color = mir.lgray, size = 0.2),
       plot.background = element_rect(fill = mir.white, color = NA), 
@@ -96,8 +96,9 @@ annx2 <- data.frame(annee = c("2013", "2014", "2015", "2016", "2017"),
 mil.plus <- read_xlsx("Medecin_montant_million_an.xlsx", col_names=T)
 
 # rise of FFS over years
-labs = c("Fee-for-service and incentives", "Mixed scheme", "Fees package", "Remuneration package",
-         "Salary and fixed fees", "Special measures", "Other programs and benefits")
+labs = c("Fee-for-service and incentives", "Other programs and benefits", 
+         "Remuneration package", "Fees package", "Mixed scheme", "Special measures",
+         "Salary and fixed fees")
 ggplot(data=annx2 %>% gather(mode, value, -annee)    , 
   aes(x=annee, y=value, group=as.factor(mode), colour=as.factor(mode))) +
   geom_line(stat="identity") +
@@ -112,8 +113,8 @@ ggplot(data=annx2 %>% gather(mode, value, -annee)    ,
                       title.position = 'right', title.hjust = 0.5, label.hjust = 0.5,
                       reverse = T, label.position = "bottom")) +
   theme_mir() +
-  theme(strip.text.x = element_text(size=rel(1)),
-        strip.text.y = element_text(size=rel(1)),
+  theme(strip.text.x = element_text(size=rel(1.2)),
+        strip.text.y = element_text(size=rel(1.2)),
         strip.background = element_blank(),
         legend.background = element_blank(),
         legend.justification = c(0, 0),
@@ -143,8 +144,8 @@ ggplot(data=melt(tab3) %>% mutate(value2=c(138, 362, 108, 352, 25, 34, 12, 8)),
   geom_text(family="Georgia", vjust=-0.5, position=position_dodge(width = 1),
             show.legend = FALSE) +
   theme_mir() +
-  theme(strip.text.x = element_text(size=rel(1)),
-        strip.text.y = element_text(size=rel(1)),
+  theme(strip.text.x = element_text(size=rel(1.2)),
+        strip.text.y = element_text(size=rel(1.2)),
         strip.background = element_blank(),
         legend.background = element_blank(),
         legend.justification = c(0, 0),
@@ -156,12 +157,12 @@ ggplot(data=melt(tab3) %>% mutate(value2=c(138, 362, 108, 352, 25, 34, 12, 8)),
 
 # practices who charged a million or more to RAMQ -- total 166, 202, 195 (2016)
 # opthal and radiologie upwards of 2 million
-mil.plus.5 <- mil.plus %>% filter(`2016` > 9 | `2014` > 8) %>% arrange(`2016`)
+mil.plus.5 <- mil.plus %>% filter(`2016` > 9) %>% arrange(`2016`)
 mil.plus.5$Spécialité <- factor(mil.plus.5$Spécialité, 
-                                levels=c("Obstétrique et gynécologie", "Omnipraticien", 
-                                         "Cardiologie", "Radiologie diagnostique", "Ophtalmologie"))
+                                levels=c("Omnipraticien", "Cardiologie", "Radiologie diagnostique", "Ophtalmologie"))
+# "Obstétrique et gynécologie",
 
-labs <- c("Obstetrics and gynecology", "General practice", "Cardiology", "Diagnotic radiology", "Opthalmology")
+labs <- c("General practice", "Cardiology", "Diagnotic radiology", "Opthalmology")
 ggplot(data=mil.plus.5 %>% melt(), 
        aes(variable, value, group=Spécialité, fill=Spécialité, label=value)) +
   geom_bar(stat="identity", position="dodge", colour="black") +
@@ -178,8 +179,8 @@ ggplot(data=mil.plus.5 %>% melt(),
   scale_alpha_manual(values=c(0.5, 1), name="", labels=c("Non-verified", "Verified")) +
   geom_text(family="Georgia", vjust=-0.5, position=position_dodge(width = 1)) +
   theme_mir() +
-  theme(strip.text.x = element_text(size=rel(1)),
-        strip.text.y = element_text(size=rel(1)),
+  theme(strip.text.x = element_text(size=rel(1.2)),
+        strip.text.y = element_text(size=rel(1.2)),
         strip.background = element_blank(),
         legend.background = element_blank(),
         legend.justification = c(0, 0),
